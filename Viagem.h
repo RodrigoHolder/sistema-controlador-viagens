@@ -17,7 +17,7 @@ private:
     int horasTotaisNecessarias;
     bool emAndamento;
 public:
-    Viagem(Transporte* transporte, std::vector<Passageiro*> passageiros, Cidade* origem, Cidade* destino);
+    Viagem(Transporte* transporte, std::vector<Passageiro*> passageiros, Cidade* origem, Cidade* destino, int distancia);
     void iniciarViagem();
     void avancarHoras(int horas);
     void relatarEstado() const;

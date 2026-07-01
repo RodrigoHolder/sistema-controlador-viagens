@@ -2,15 +2,14 @@
 #include <iostream>
 #include <cmath>
 
-Viagem::Viagem(Transporte* transporte, std::vector<Passageiro*> passageiros, Cidade* origem, Cidade* destino)
+Viagem::Viagem(Transporte* transporte, std::vector<Passageiro*> passageiros, Cidade* origem, Cidade* destino, int distancia)
     : transporte(transporte), passageiros(passageiros), origem(origem), destino(destino), 
       proxima(nullptr), horasEmTransito(0), emAndamento(false) {
     
-    // Simulação simplificada de cálculo de distância (exemplo estático para fins didáticos)
-    int distanciaSimulada = 300; 
-    double tempoViagemPuro = (double)distanciaSimulada / transporte->getVelocidade();
-    int paradas = distanciaSimulada / transporte->getDistanciaEntreDescansos();
-    if (distanciaSimulada % transporte->getDistanciaEntreDescansos() == 0 && paradas > 0) paradas--;
+    // Agora usa a distancia real do trajeto!
+    double tempoViagemPuro = (double)distancia / transporte->getVelocidade();
+    int paradas = distancia / transporte->getDistanciaEntreDescansos();
+    if (distancia % transporte->getDistanciaEntreDescansos() == 0 && paradas > 0) paradas--;
     
     horasTotaisNecessarias = std::ceil(tempoViagemPuro) + (paradas * transporte->getTempoDescanso());
 }

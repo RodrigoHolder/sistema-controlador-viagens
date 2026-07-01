@@ -69,6 +69,15 @@ void ControladorDeTransito::iniciarViagem(std::string nomeTransporte, std::vecto
         return;
     }
 
+    // --- BUSCA A DISTÂNCIA REAL DO TRAJETO ---
+    int distanciaReal = 300; // valor padrão caso não ache
+    for (auto t : trajetos) {
+        if (t->getOrigem() == orig && t->getDestino() == dest) {
+            distanciaReal = t->getDistancia();
+            break;
+        }
+    }
+
     std::vector<Passageiro*> passEscolhidos;
     for (const auto& nome : nomesPassageiros) {
         Passageiro* p = buscarPassageiro(nome);
@@ -77,7 +86,8 @@ void ControladorDeTransito::iniciarViagem(std::string nomeTransporte, std::vecto
         }
     }
 
-    Viagem* novaViagem = new Viagem(tr, passEscolhidos, orig, dest);
+    // Passa a distanciaReal para o construtor da Viagem
+    Viagem* novaViagem = new Viagem(tr, passEscolhidos, orig, dest, distanciaReal);
     novaViagem->iniciarViagem();
     viagens.push_back(novaViagem);
     std::cout << "Viagem de " << orig->getNome() << " para " << dest->getNome() << " iniciada com sucesso!\n";
