@@ -104,7 +104,6 @@ void ControladorDeTransito::iniciarViagem(std::string nomeTransporte, std::vecto
         return;
     }
 
-    // --- ALGORITMO DE BUSCA DE CONEXÕES REQUISITADO ---
     std::vector<Cidade*> visitados;
     std::vector<Trajeto*> caminhoGerado;
     
@@ -126,37 +125,38 @@ void ControladorDeTransito::iniciarViagem(std::string nomeTransporte, std::vecto
         return;
     }
 
-    // Cria as viagens baseadas nos trechos encontrados
     std::vector<Viagem*> segmentos;
     for (auto t : caminhoGerado) {
         segmentos.push_back(new Viagem(tr, passEscolhidos, t->getOrigem(), t->getDestino(), t->getDistancia()));
     }
 
-    // Encadeia as viagens usando o ponteiro 'proxima'
     for (size_t i = 0; i < segmentos.size() - 1; ++i) {
         segmentos[i]->setProxima(segmentos[i+1]);
     }
 
-    // Registra todas no controlador
     for (auto seg : segmentos) {
         viagens.push_back(seg);
     }
 
-    // Inicia apenas o primeiro trecho da conexão
     segmentos[0]->iniciarViagem();
     std::cout << ">> ROTA ENCONTRADA! Viagem com " << caminhoGerado.size() << " trecho(s) iniciada com sucesso!\n";
 }
 
 void ControladorDeTransito::avancarHoras(int horas) {
-    bool algumaViagemAtiva = false;
+    std::vector<Viagem*> ativasNoInicio;
     for (auto v : viagens) {
         if (v->isEmAndamento()) {
-            algumaViagemAtiva = true;
-            v->avancarHoras(horas);
+            ativasNoInicio.push_back(v);
         }
     }
-    if (!algumaViagemAtiva) {
+
+    if (ativasNoInicio.empty()) {
         std::cout << ">> Nenhuma viagem em andamento para avancar o tempo.\n";
+        return;
+    }
+
+    for (auto v : ativasNoInicio) {
+        v->avancarHoras(horas);
     }
 }
 
@@ -170,14 +170,14 @@ void ControladorDeTransito::relatarEstado() const {
     for (auto tr : transportes) {
         std::cout << "- " << tr->getNome() << ": " << (tr->isEmTransito() ? "Em Transito" : tr->getLocalAtual()->getNome()) << "\n";
     }
-    std::cout << "--- Viagens em Andamento/Conexao ---\n";
-    int ativas = 0;
-    for (auto v : viagens) {
-        if (v->isEmAndamento() || v->getProxima() != nullptr) {
+    
+    std::cout << "--- Historico e Status dos Trechos ---\n";
+    if (viagens.empty()) {
+        std::cout << "(Nenhuma viagem registrada no momento)\n";
+    } else {
+        for (auto v : viagens) {
             v->relatarEstado();
-            ativas++;
         }
     }
-    if (ativas == 0) std::cout << "(Nenhuma viagem ativa no momento)\n";
     std::cout << "=============================\n";
 }

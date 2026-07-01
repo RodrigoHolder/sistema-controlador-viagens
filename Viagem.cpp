@@ -26,24 +26,35 @@ void Viagem::iniciarViagem() {
 
 void Viagem::avancarHoras(int horas) {
     if (!emAndamento) return;
+    
     horasEmTransito += horas;
+    
     if (horasEmTransito >= horasTotaisNecessarias) {
         emAndamento = false;
-        // Se houver uma próxima conexão, as entidades continuam em trânsito
+        
         if (proxima == nullptr) {
+            // Se for o ÚLTIMO trecho de todos, finalmente move as entidades para o destino final
             transporte->setEmTransito(false);
             transporte->setLocalAtual(destino);
             for (auto p : passageiros) {
                 p->setEmTransito(false);
                 p->setLocalAtual(destino);
             }
-            std::cout << ">> Viagem finalizada! Chegada a cidade de " << destino->getNome() << "\n";
+            std::cout << ">> VIAGEM TOTAL FINALIZADA! Chegada a cidade de " << destino->getNome() << "\n";
         } else {
-            std::cout << ">> Conexao intermediaria concluida em " << destino->getNome() << ". Aguardando proximo trecho.\n";
+            // Se houver uma conexão seguinte, ativa-a imediatamente!
+            std::cout << ">> Conexao em " << destino->getNome() << " concluida. Iniciando proximo trecho...\n";
+            
+            proxima->iniciarViagem();
+            
+            // Se sobrarem horas deste avanço, repassa-as para o próximo trecho
+            int sobra = horasEmTransito - horasTotaisNecessarias;
+            if (sobra > 0) {
+                proxima->avancarHoras(sobra);
+            }
         }
     }
 }
-
 void Viagem::relatarEstado() const {
     std::cout << "Trecho: " << origem->getNome() << " -> " << destino->getNome() 
               << " | Status: " << (emAndamento ? "Em andamento" : "Aguardando/Finalizado")
